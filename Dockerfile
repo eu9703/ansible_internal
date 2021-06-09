@@ -1,31 +1,27 @@
-FROM gliderlabs/alpine:3.4
-ARG VERSION=2.7.2
+FROM alpine
 
 RUN \
-  apk-install \
-    curl \
+  apk add \
     openssh-client \
-    python \
-    py-boto \
-    py-dateutil \
-    py-httplib2 \
-    py-jinja2 \
-    py-paramiko \
-    py-pip \
-    py-setuptools \
-    py-yaml \
+    python3 \
+    python3-dev \
+    alpine-sdk autoconf automake libtool \
+    py3-boto \
+    py3-dateutil \
+    py3-httplib2 \
+    py3-jinja2 \
+    py3-wheel \
+    py3-paramiko \
+    py3-pip \
+    py3-setuptools \
+    py3-yaml \
     tar && \
-  pip install --upgrade pip python-keyczar && \
+  pip3 install --upgrade pip python3-keyczar ansible && \
   rm -rf /var/cache/apk/*
 
 RUN mkdir /etc/ansible/ /ansible
 RUN echo "[local]" >> /etc/ansible/hosts && \
     echo "localhost" >> /etc/ansible/hosts
-
-RUN \
-  curl -fsSL https://releases.ansible.com/ansible/ansible-${VERSION}.tar.gz -o ansible.tar.gz && \
-  tar -xzf ansible.tar.gz -C ansible --strip-components 1 && \
-  rm -fr ansible.tar.gz /ansible/docs /ansible/examples /ansible/packaging
 
 RUN mkdir -p /ansible/playbooks
 WORKDIR /ansible/playbooks
@@ -37,5 +33,6 @@ ENV ANSIBLE_ROLES_PATH /ansible/playbooks/roles
 ENV ANSIBLE_SSH_PIPELINING True
 ENV PATH /ansible/bin:$PATH
 ENV PYTHONPATH /ansible/lib
+#ENV PYTHONPATH /usr/bin/python3
 
 ENTRYPOINT ["ansible-playbook"]
